@@ -67,7 +67,7 @@ class ShoppingActivity : AppCompatActivity() {
         // Полная очистка
         btnClearAll.setOnClickListener {
             shoppingList.clear()
-            val sharedPreferences = getSharedPreferences("ShoppingPrefs", Context.MODE_PRIVATE)
+            val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             sharedPreferences.edit().clear().apply()
             adapter.notifyDataSetChanged()
             Toast.makeText(this, "Список полностью очищен", Toast.LENGTH_SHORT).show()
@@ -75,18 +75,25 @@ class ShoppingActivity : AppCompatActivity() {
     }
 
     fun saveShoppingList() {
-        val sharedPreferences = getSharedPreferences("ShoppingPrefs", Context.MODE_PRIVATE)
-        val serialized = shoppingList.joinToString(";;;")
-        sharedPreferences.edit().putString("saved_items", serialized).apply()
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val serialized = shoppingList.joinToString(SEPARATOR)
+        sharedPreferences.edit().putString(KEY_ITEMS, serialized).apply()
     }
 
     fun loadShoppingList() {
-        val sharedPreferences = getSharedPreferences("ShoppingPrefs", Context.MODE_PRIVATE)
-        val rawString = sharedPreferences.getString("saved_items", "") ?: ""
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val rawString = sharedPreferences.getString(KEY_ITEMS, "") ?: ""
         shoppingList.clear()
         if (rawString.isNotEmpty()) {
-            shoppingList.addAll(rawString.split(";;;").filter { it.isNotBlank() })
+            shoppingList.addAll(rawString.split(SEPARATOR).filter { it.isNotBlank() })
         }
         adapter.notifyDataSetChanged()
+    }
+
+    companion object {
+        // Имя файла настроек, ключ и разделитель для сериализации списка
+        private const val PREFS_NAME = "ShoppingPrefs"
+        private const val KEY_ITEMS = "saved_items"
+        private const val SEPARATOR = ";;;"
     }
 }
